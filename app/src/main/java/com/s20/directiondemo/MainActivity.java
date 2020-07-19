@@ -35,6 +35,7 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -118,21 +119,25 @@ public class MainActivity extends AppCompatActivity {
                         getDirectionsData.execute(dataTransfer);*/
 
                         /*By Volley Library*/
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        if (location != null) {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                                getDirectionUrl(latLng), null, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                GetByVolley.getDirection(response, map, location);
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                                    getDirectionUrl(latLng), null, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    GetByVolley.getDirection(response, map, location);
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
 
-                            }
-                        });
-                        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+                                }
+                            });
+                            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Please choose a destination", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }
@@ -173,19 +178,19 @@ public class MainActivity extends AppCompatActivity {
 
     private String getPlaceUrl(double latitude, double longitude, String placeType) {
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("location="+latitude+","+longitude);
-        googlePlaceUrl.append(("&radius="+RADIUS));
-        googlePlaceUrl.append("&type="+placeType);
-        googlePlaceUrl.append("&key="+getString(R.string.google_place_key));
+        googlePlaceUrl.append("location=" + latitude + "," + longitude);
+        googlePlaceUrl.append(("&radius=" + RADIUS));
+        googlePlaceUrl.append("&type=" + placeType);
+        googlePlaceUrl.append("&key=" + getString(R.string.google_place_key));
         Log.d(TAG, "getDirectionUrl: " + googlePlaceUrl);
         return googlePlaceUrl.toString();
     }
 
     private String getDirectionUrl(LatLng location) {
         StringBuilder googleDirectionUrl = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?");
-        googleDirectionUrl.append("origin="+userLocation.latitude+","+userLocation.longitude);
-        googleDirectionUrl.append(("&destination="+location.latitude+","+location.longitude));
-        googleDirectionUrl.append("&key="+getString(R.string.google_place_key));
+        googleDirectionUrl.append("origin=" + userLocation.latitude + "," + userLocation.longitude);
+        googleDirectionUrl.append(("&destination=" + location.latitude + "," + location.longitude));
+        googleDirectionUrl.append("&key=" + getString(R.string.google_place_key));
         Log.d(TAG, "getDirectionUrl: " + googleDirectionUrl);
         return googleDirectionUrl.toString();
     }
